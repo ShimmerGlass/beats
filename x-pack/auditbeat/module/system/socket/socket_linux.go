@@ -3,7 +3,6 @@
 // you may not use this file except in compliance with the Elastic License.
 
 //go:build (linux && 386) || (linux && amd64)
-// +build linux,386 linux,amd64
 
 package socket
 
@@ -405,6 +404,9 @@ func (m *MetricSet) Setup() (err error) {
 	// Make sure all the required kernel functions are available
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
+		if disabled, ok := m.config.DisableKprobe[probeDef.Probe.Name]; ok && disabled {
+			continue
+		}
 		probeDef = probeDef.ApplyTemplate(m.templateVars)
 		name := probeDef.Probe.Address
 		if !m.isKernelFunctionAvailable(name, functions) {
@@ -454,6 +456,9 @@ func (m *MetricSet) Setup() (err error) {
 	// Register Kprobes
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
+		if disabled, ok := m.config.DisableKprobe[probeDef.Probe.Name]; ok && disabled {
+			continue
+		}
 		format, decoder, err := m.installer.Install(probeDef)
 		if err != nil {
 			return fmt.Errorf("unable to register probe %s: %w", probeDef.Probe.String(), err)
