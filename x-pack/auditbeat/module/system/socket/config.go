@@ -67,7 +67,7 @@ type Config struct {
 	EnableIPv6 *bool `config:"socket.enable_ipv6"`
 
 	// DisableKprobe allows to disable specific kprobes by their probe name.
-	DisableKprobe map[string]bool `config:"socket.disable_kprobe"`
+	DisableKprobe []string `config:"socket.disable_kprobe"`
 }
 
 // Validate validates the socket metricset config.

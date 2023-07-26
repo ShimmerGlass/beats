@@ -21,6 +21,7 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/sys/unix"
 
 	"github.com/elastic/beats/v7/libbeat/common"
@@ -404,7 +405,7 @@ func (m *MetricSet) Setup() (err error) {
 	// Make sure all the required kernel functions are available
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
-		if disabled, ok := m.config.DisableKprobe[probeDef.Probe.Name]; ok && disabled {
+		if slices.Index(m.config.DisableKprobe, probeDef.Probe.Name) != -1 {
 			continue
 		}
 		probeDef = probeDef.ApplyTemplate(m.templateVars)
@@ -456,7 +457,7 @@ func (m *MetricSet) Setup() (err error) {
 	// Register Kprobes
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
-		if disabled, ok := m.config.DisableKprobe[probeDef.Probe.Name]; ok && disabled {
+		if slices.Index(m.config.DisableKprobe, probeDef.Probe.Name) != -1 {
 			continue
 		}
 		format, decoder, err := m.installer.Install(probeDef)
