@@ -3,7 +3,6 @@
 // you may not use this file except in compliance with the Elastic License.
 
 //go:build (linux && 386) || (linux && amd64)
-// +build linux,386 linux,amd64
 
 package socket
 
@@ -22,6 +21,7 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/sys/unix"
 
 	"github.com/elastic/beats/v7/libbeat/common"
@@ -405,6 +405,9 @@ func (m *MetricSet) Setup() (err error) {
 	// Make sure all the required kernel functions are available
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
+		if slices.Index(m.config.DisableKprobe, probeDef.Probe.Name) != -1 {
+			continue
+		}
 		probeDef = probeDef.ApplyTemplate(m.templateVars)
 		name := probeDef.Probe.Address
 		if !m.isKernelFunctionAvailable(name, functions) {
@@ -454,6 +457,9 @@ func (m *MetricSet) Setup() (err error) {
 	// Register Kprobes
 	//
 	for _, probeDef := range getKProbes(hasIPv6) {
+		if slices.Index(m.config.DisableKprobe, probeDef.Probe.Name) != -1 {
+			continue
+		}
 		format, decoder, err := m.installer.Install(probeDef)
 		if err != nil {
 			return fmt.Errorf("unable to register probe %s: %w", probeDef.Probe.String(), err)
